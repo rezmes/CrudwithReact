@@ -21,7 +21,9 @@ export default class ReactCrudWebPart extends BaseClientSideWebPart<IReactCrudWe
     const element: React.ReactElement<IReactCrudProps > = React.createElement(
       ReactCrud,
       {
-        description: this.properties.description
+        description: this.properties.description,
+        context: this.context,
+        siteUrl: this.context.pageContext.web.absoluteUrl
       }
     );
 
