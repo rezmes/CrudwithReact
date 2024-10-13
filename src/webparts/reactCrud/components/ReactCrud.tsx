@@ -1,5 +1,6 @@
 import * as React from "react";
 import styles from "./ReactCrud.module.scss";
+import { ISoftwareListItem } from "./ISoftwareListItem";
 import { IReactCrudProps } from "./IReactCrudProps";
 import { escape } from "@microsoft/sp-lodash-subset";
 import { IReactCrudState } from "./IReactCrudState";
@@ -26,7 +27,6 @@ import {
   DetailsRowCheck,
   Selection,
 } from "office-ui-fabric-react";
-import { ISoftwareListItem } from "./ISoftwareListItem";
 
 let _softwareListColumns = [
   {
@@ -121,24 +121,32 @@ export default class ReactCrud extends React.Component<
       },
     };
 
-    // this._selection = new Selection({
-    //   onSelectionChanged: this._onSelectionChanged,
-    // });
+    this._selection = new Selection({
+      onSelectionChanged: this._onItemsSelectionChanged,
+    });
   }
 
-  // componentDidMount(): void {
-  //   fetch(
-  //     this.props.siteUrl + "/_api/web/lists/GetByTitle('SoftwareList')/items"
-  //   )
-  //     .then((response) => response.json())
-  //     .then((data) => this.setState({ SoftwareListItems: data.value }))
-  //     .catch((error) => console.log(error));
-  // }
-  // componentDidUpdate(
-  //   prevProps: Readonly<IReactCrudProps>,
-  //   prevState: Readonly<IReactCrudState>,
-  //   prevContext: any
-  // ): void {}
+  private _getListItems(): Promise<ISoftwareListItem[]> {
+    const url: string = `${this.props.siteUrl}/_api/web/lists/GetByTitle('SoftwareCatalog')/items`;
+    return this.props.context.spHttpClient
+      .get(url, SPHttpClient.configurations.v1)
+      .then((response: SPHttpClientResponse) => {
+        return response.json();
+      })
+      .then((json) => {
+        return json.value;
+      }) as Promise<ISoftwareListItem[]>;
+  }
+
+  public bindDetailsList(message: string): void {
+    this._getListItems().then((listItems) => {
+      this.setState({ SoftwareListItems: listItems, status: message });
+    });
+  }
+
+  public componentDidMount(): void {
+    this.bindDetailsList("All Records have been Loaded successfully");
+  }
 
   public render(): React.ReactElement<IReactCrudProps> {
     return (
@@ -184,7 +192,7 @@ export default class ReactCrud extends React.Component<
         />
         <Dropdown
           componentRef={(ref) => {
-            this.dropdownRef = ref as unknown as Dropdown;
+            this.dropdownRef = ref as any as Dropdown;
           }}
           placeHolder="Select an option"
           label="Software Vendor"
