@@ -8,31 +8,33 @@ import { IReactCrudState } from "./IReactCrudState";
 import {
   ISPHttpClientOptions,
   SPHttpClient,
+  SPHttpClientConfiguration,
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
 
 import {
   TextField,
-  // autobind,
+  autobind,
   PrimaryButton,
   DetailsList,
   DetailsListLayoutMode,
   CheckboxVisibility,
   SelectionMode,
-  Dropdown,
+  // Dropdown,
   IDropdown,
-  IDropdownOption,
+  // IDropdownOption,
   // ITextFieldStyles,
   // IDropdownStyles,
   DetailsRowCheck,
   Selection,
 } from "office-ui-fabric-react";
+import { Dropdown, IDropdownOption } from "office-ui-fabric-react/lib/Dropdown";
 
 let _softwareListColumns = [
   {
-    key: "Id",
-    name: "Id",
-    fieldName: "Id",
+    key: "ID",
+    name: "ID",
+    fieldName: "ID",
     minWidth: 70,
     maxWidth: 90,
     isResizable: true,
@@ -79,16 +81,16 @@ let _softwareListColumns = [
   },
 ];
 
-// const textFieldStyles: Partial<ITextFieldStyles> = {
-//   fieldGroup: {
-//     width: 300,
-//   },
-// };
-// const narrowDropdownStyles: Partial<IDropdownStyles> = {
-//   fieldGroup: {
-//     width: 100,
-//   },
-// };
+// // const textFieldStyles: Partial<ITextFieldStyles> = {
+// //   fieldGroup: {
+// //     width: 300,
+// //   },
+// // };
+// // const narrowDropdownStyles: Partial<IDropdownStyles> = {
+// //   fieldGroup: {
+// //     width: 100,
+// //   },
+// // };
 
 const textFieldStyles = { width: 300 };
 const narrowDropdownStyles = { width: 100 };
@@ -130,7 +132,7 @@ export default class ReactCrud extends React.Component<
     const url: string = `${this.props.siteUrl}/_api/web/lists/GetByTitle('SoftwareCatalog')/items`;
     return this.props.context.spHttpClient
       .get(url, SPHttpClient.configurations.v1)
-      .then((response: SPHttpClientResponse) => {
+      .then((response) => {
         return response.json();
       })
       .then((json) => {
@@ -147,6 +149,68 @@ export default class ReactCrud extends React.Component<
   public componentDidMount(): void {
     this.bindDetailsList("All Records have been Loaded successfully");
   }
+  // @autobind
+  private _onAddClick = (): void => {
+    const newItem: ISoftwareListItem = {
+      Id: this.state.SoftwareListItem.Id,
+      Title: this.state.SoftwareListItem.Title,
+      SoftwareName: this.state.SoftwareListItem.SoftwareName,
+      SoftwareVendor: this.state.SoftwareListItem.SoftwareVendor,
+      SoftwareDescription: this.state.SoftwareListItem.SoftwareDescription,
+      SoftwareVersion: this.state.SoftwareListItem.SoftwareVersion,
+    };
+    const url: string = `${this.props.siteUrl}/_api/web/lists/GetByTitle('SoftwareCatalog')/items`;
+
+    const spHttpClientOptions: ISPHttpClientOptions = {
+      body: JSON.stringify(this.state.SoftwareListItem),
+    };
+
+    this.props.context.spHttpClient
+      .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
+      .then((response: SPHttpClientResponse) => {
+        if (response.status === 201) {
+          this.bindDetailsList(
+            "Record added and All Records were loaded Successfully"
+          );
+        } else {
+          let errormessage = `An error has occurred i.e. ${response.status} - ${response.statusText}`;
+          this.setState({ status: errormessage });
+        }
+      });
+  };
+
+  //   //  @autobind;
+  //   // private _onAddClick = () => {
+  //   //   const newItem: ISoftwareListItem = {
+  //   //     Id: this.state.SoftwareListItem.Id,
+  //   //     Title: this.state.SoftwareListItem.Title,
+  //   //     SoftwareName: this.state.SoftwareListItem.SoftwareName,
+  //   //     SoftwareVendor: this.state.SoftwareListItem.SoftwareVendor,
+  //   //     SoftwareDescription: this.state.SoftwareListItem.SoftwareDescription,
+  //   //     SoftwareVersion: this.state.SoftwareListItem.SoftwareVersion,
+  //   //   };
+
+  //   //   const url: string = `${this.props.siteUrl}/_api/web/lists/GetByTitle('SoftwareCatalog')/items`;
+  //   //   const spHttpClientOptions: ISPHttpClientOptions = {
+  //   //     body: JSON.stringify(this.state.SoftwareListItem),
+  //   //   };
+  //   //   this.props.context.spHttpClient
+  //   //     .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
+  //   //     .then((response: SPHttpClientResponse) => {
+  //   //       if (response.status === 201) {
+  //   //         this.bindDetailsList(
+  //   //           "Record added and All Records were loaded Successfully"
+  //   //         );
+  //   //       } else {
+  //   //         let errormessage: string =
+  //   //           "An error has occured i.e. " +
+  //   //           response.status +
+  //   //           " - " +
+  //   //           response.statusText;
+  //   //         this.setState({ status: errormessage });
+  //   //       }
+  //   //     });
+  //   // };
 
   public render(): React.ReactElement<IReactCrudProps> {
     return (
@@ -157,11 +221,7 @@ export default class ReactCrud extends React.Component<
           style={textFieldStyles}
           value={this.state.SoftwareListItem.Id.toString()}
           onChanged={(e) => {
-            const newItem = {
-              ...this.state.SoftwareListItem,
-              Id: parseInt(e.target.value || "0"),
-            };
-            this.setState({ SoftwareListItem: newItem });
+            this.state.SoftwareListItem.Id = e;
           }}
         />
         <TextField
@@ -170,11 +230,7 @@ export default class ReactCrud extends React.Component<
           style={textFieldStyles}
           value={this.state.SoftwareListItem.Title}
           onChanged={(e) => {
-            const newItem = {
-              ...this.state.SoftwareListItem,
-              Title: e.target.value || "",
-            };
-            this.setState({ SoftwareListItem: newItem });
+            this.state.SoftwareListItem.Title = e;
           }}
         />
         <TextField
@@ -183,11 +239,7 @@ export default class ReactCrud extends React.Component<
           style={textFieldStyles}
           value={this.state.SoftwareListItem.SoftwareName}
           onChanged={(e) => {
-            const newItem = {
-              ...this.state.SoftwareListItem,
-              SoftwareName: e.target.value || "",
-            };
-            this.setState({ SoftwareListItem: newItem });
+            this.state.SoftwareListItem.SoftwareName = e;
           }}
         />
         <Dropdown
@@ -213,9 +265,9 @@ export default class ReactCrud extends React.Component<
           }}
         />
         <p className={styles.title}>
-          {/* <PrimaryButton  text="Add"  title="Add"  onClick={this._onAddClick}  />
-          <PrimaryButton  text="Update"  title="Update"  onClick={this._onUpdateClick}  />
-          <PrimaryButton  text="Delete"  title="Delete"  onClick={this._onDeleteClick}  /> */}
+          <PrimaryButton text="Add" title="Add" onClick={this._onAddClick} />
+          {/*<PrimaryButton  text="Update"  title="Update"  onClick={this._onUpdateClick}  />
+           <PrimaryButton  text="Delete"  title="Delete"  onClick={this._onDeleteClick}  /> */}
         </p>
         <div id="divStatus">{this.state.status}</div>
         <div>
