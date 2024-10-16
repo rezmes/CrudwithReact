@@ -150,6 +150,8 @@ export default class ReactCrud extends React.Component<
     this.bindDetailsList("All Records have been Loaded successfully");
   }
   // @autobind
+
+  // ADD Button
   private _onAddClick = (): void => {
     const newItem: ISoftwareListItem = {
       Id: this.state.SoftwareListItem.Id,
@@ -178,7 +180,50 @@ export default class ReactCrud extends React.Component<
         }
       });
   };
-
+  // Update Button
+  public _onUpdateClick = (): void => {
+    let id: number = this.state.SoftwareListItem.Id;
+    const url: string = `${this.props.siteUrl}/_api/web/lists/GetByTitle('SoftwareCatalog')/items(${id})`;
+    const header: any = {
+      "X-HTTP-Method": "MERGE",
+      "IF-MATCH": "*",
+    };
+    const spHttpClientOptions: ISPHttpClientOptions = {
+      headers: header,
+      body: JSON.stringify(this.state.SoftwareListItem),
+    };
+    this.props.context.spHttpClient
+      .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
+      .then((response: SPHttpClientResponse) => {
+        if (response.status === 204) {
+          this.bindDetailsList("Record updated Successfully");
+        } else {
+          let errormessage = `An error has occurred i.e. ${response.status} - ${response.statusText}`;
+          this.setState({ status: errormessage });
+        }
+      });
+  };
+  // Delete button
+  public _onDeleteClick = (): void => {
+    let id: number = this.state.SoftwareListItem.Id;
+    const url: string = `${this.props.siteUrl}/_api/web/lists/GetByTitle('SoftwareCatalog')/items(${id})`;
+    const spHttpClientOptions: ISPHttpClientOptions = {
+      headers: {
+        "X-HTTP-Method": "DELETE",
+        "IF-MATCH": "*",
+      },
+    };
+    this.props.context.spHttpClient
+      .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
+      .then((response: SPHttpClientResponse) => {
+        if (response.status === 204) {
+          this.bindDetailsList("Record deleted Successfully");
+        } else {
+          let errormessage = `An error has occurred i.e. ${response.status} - ${response.statusText}`;
+          this.setState({ status: errormessage });
+        }
+      });
+  };
   //   //  @autobind;
   //   // private _onAddClick = () => {
   //   //   const newItem: ISoftwareListItem = {
@@ -264,10 +309,36 @@ export default class ReactCrud extends React.Component<
             this.setState({ SoftwareListItem: newItem });
           }}
         />
+        <TextField
+          label="SoftwareVersion"
+          required={true}
+          style={textFieldStyles}
+          value={this.state.SoftwareListItem.SoftwareVersion}
+          onChanged={(e) => {
+            this.state.SoftwareListItem.SoftwareVersion = e;
+          }}
+        />
+        <TextField
+          label="description"
+          required={true}
+          style={textFieldStyles}
+          value={this.state.SoftwareListItem.SoftwareDescription}
+          onChanged={(e) => {
+            this.state.SoftwareListItem.SoftwareDescription = e;
+          }}
+        />
         <p className={styles.title}>
           <PrimaryButton text="Add" title="Add" onClick={this._onAddClick} />
-          {/*<PrimaryButton  text="Update"  title="Update"  onClick={this._onUpdateClick}  />
-           <PrimaryButton  text="Delete"  title="Delete"  onClick={this._onDeleteClick}  /> */}
+          <PrimaryButton
+            text="Update"
+            title="Update"
+            onClick={this._onUpdateClick}
+          />
+          <PrimaryButton
+            text="Delete"
+            title="Delete"
+            onClick={this._onDeleteClick}
+          />
         </p>
         <div id="divStatus">{this.state.status}</div>
         <div>
