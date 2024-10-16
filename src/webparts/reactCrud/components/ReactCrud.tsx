@@ -265,8 +265,15 @@ export default class ReactCrud extends React.Component<
           required={false}
           style={textFieldStyles}
           value={this.state.SoftwareListItem.Id.toString()}
-          onChanged={(e) => {
-            this.state.SoftwareListItem.Id = e;
+          onChange={(
+            _event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+            newValue?: string
+          ) => {
+            const newItem = {
+              ...this.state.SoftwareListItem,
+              Id: parseInt(newValue || "0"),
+            };
+            this.setState({ SoftwareListItem: newItem });
           }}
         />
         <TextField
@@ -274,19 +281,66 @@ export default class ReactCrud extends React.Component<
           required={true}
           style={textFieldStyles}
           value={this.state.SoftwareListItem.Title}
-          onChanged={(e) => {
-            this.state.SoftwareListItem.Title = e;
+          onChange={(
+            _event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+            newValue?: string
+          ) => {
+            const newItem = {
+              ...this.state.SoftwareListItem,
+              Title: newValue,
+            };
+            this.setState({ SoftwareListItem: newItem });
           }}
         />
         <TextField
-          label="SoftwareName"
+          label="Software Name"
           required={true}
           style={textFieldStyles}
           value={this.state.SoftwareListItem.SoftwareName}
-          onChanged={(e) => {
-            this.state.SoftwareListItem.SoftwareName = e;
+          onChange={(
+            _event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+            newValue?: string
+          ) => {
+            const newItem = {
+              ...this.state.SoftwareListItem,
+              softwareName: newValue,
+            };
+            this.setState({ SoftwareListItem: newItem });
           }}
         />
+        <TextField
+          label="Software Version"
+          required={true}
+          style={textFieldStyles}
+          value={this.state.SoftwareListItem.SoftwareVersion}
+          onChange={(
+            _event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+            newValue?: string
+          ) => {
+            const newItem = {
+              ...this.state.SoftwareListItem,
+              SoftwareVersion: newValue,
+            };
+            this.setState({ SoftwareListItem: newItem });
+          }}
+        />
+        <TextField
+          label="Description"
+          required={true}
+          style={textFieldStyles}
+          value={this.state.SoftwareListItem.SoftwareDescription}
+          onChange={(
+            _event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+            newValue?: string
+          ) => {
+            const newItem = {
+              ...this.state.SoftwareListItem,
+              SoftwareDescription: newValue,
+            };
+            this.setState({ SoftwareListItem: newItem });
+          }}
+        />
+
         <Dropdown
           componentRef={(ref) => {
             this.dropdownRef = ref as any as Dropdown;
@@ -309,6 +363,33 @@ export default class ReactCrud extends React.Component<
             this.setState({ SoftwareListItem: newItem });
           }}
         />
+        {/*                <TextField
+          label="ID"
+          required={false}
+          style={textFieldStyles}
+          value={this.state.SoftwareListItem.Id.toString()}
+          onChanged={(e) => {
+            this.state.SoftwareListItem.Id = e;
+          }}
+        />
+         <TextField
+          label="Title"
+          required={true}
+          style={textFieldStyles}
+          value={this.state.SoftwareListItem.Title}
+          onChanged={(e) => {
+            this.state.SoftwareListItem.Title = e;
+          }}
+        />
+        <TextField
+          label="SoftwareName"
+          required={true}
+          style={textFieldStyles}
+          value={this.state.SoftwareListItem.SoftwareName}
+          onChanged={(e) => {
+            this.state.SoftwareListItem.SoftwareName = e;
+          }}
+        />
         <TextField
           label="SoftwareVersion"
           required={true}
@@ -326,7 +407,7 @@ export default class ReactCrud extends React.Component<
           onChanged={(e) => {
             this.state.SoftwareListItem.SoftwareDescription = e;
           }}
-        />
+        /> */}
         <p className={styles.title}>
           <PrimaryButton text="Add" title="Add" onClick={this._onAddClick} />
           <PrimaryButton
